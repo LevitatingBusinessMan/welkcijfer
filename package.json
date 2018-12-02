@@ -11,6 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.16.4",
-    "magister-api": "^0.1.9"
+    "magister-api": "file:./magister-api/"
   }
 }

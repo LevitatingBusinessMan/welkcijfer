@@ -1,5 +1,4 @@
-//const { default: Magister } = require('magister-api')
-const Magister = require(require("path").join(__dirname, "../../magister-api/dist/magister.js")).default;
+const { default: Magister } = require('magister-api')
 
 module.exports = (req, res) => {
     if (!req.query.school) return res.status(400).send({
