@@ -1,0 +1,3 @@
+Sessions for logins, simply autofill the form when session found (remember me checkbox!!)
+
+when clicking on check call is made to server, which gives the calculations when login is correct. Client side JS then draws the results

@@ -1,0 +1,103 @@
+//include ../includes/grades
+
+h1 Login met Magister:
+
+div#login
+    //input(value="Willem de Zwijger College Bussum")
+    br
+    br
+    input#username(placeholder="Gebruikersnaam")
+    br
+    input#password(placeholder="Wachtwoord" type="password")
+    br
+
+    p Cijfer om te behouden
+        input#minimum(value="5,5")
+
+    button(onClick="login()") Checken
+    p#loading(style="display:none") laden...
+
+table#list(style="visibility: hidden")
+    tr
+        th Vak
+        th 1
+        th 2
+        th 3
+        th - weging
+
+p.
+    Er zit momenteel een bug in Magister waardoor sommige cijfers zonder weging worden weergegeven.
+    Wanneer de resultaten bijna allemaal 5.5 of 1 geven, proberen het dan nog eens.
+
+script.
+
+    function login() {
+
+        const list = document.getElementById("list");
+        //Delete existing grades
+        list.innerHTML = list.rows[0].innerHTML;
+        list.style = "visibility: hidden";
+
+        const loading = document.getElementById("loading");
+        loading.style = "display: block";
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const minimum = document.getElementById("minimum").value;
+        
+        if(!username.length)
+            return alert("Gebruikersnaam graag");
+
+        if(!password.length)
+            return alert("wachtwoord graag");
+
+        fetch("/login",{
+            method: "POST",
+            body: JSON.stringify({username, password, minimum}),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then(res => {
+            loading.style = "display: none";
+
+                //OK-results
+                if (res.ok) {
+                    res.json()
+                        .then(grades => {
+
+                            const list = document.getElementById("list");
+
+                            for (gradeName in grades) {
+                                const grade = grades[gradeName];
+                                const row = list.insertRow();
+                                const name_cell = row.insertCell(0);
+                                const weight_1 = row.insertCell(1);
+                                const weight_2 = row.insertCell(2);
+                                const weight_3 = row.insertCell(3);
+                                
+                                name_cell.innerHTML = gradeName;
+                                weight_1.innerHTML = grade[1];
+                                weight_2.innerHTML = grade[2];
+                                weight_3.innerHTML = grade[3];
+
+
+                                list.appendChild(row)
+                            }
+
+                            list.style = "visibility: visible";
+                        })
+                }
+                
+                //non-OK results
+                else {
+                    if (res.status !== 200) {
+                        //note: sadly fetch will always spam every non-200 requests in console
+                        alert("Oops, error")
+                    }
+                }
+        });
+
+    }
+
+style.
+
