@@ -15,7 +15,6 @@ module.exports  = (req, res) => {
         
         const courses = await m.courses();
         const last_course = courses[courses.length - 1]
-        console.log(last_course.type.description)
         const grades = await last_course.grades();
 
         //Stolen {
