@@ -2,10 +2,7 @@
   "name": "welkcijfer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "server.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/LevitatingBusinessMan/welkcijfer.git"
@@ -19,7 +16,6 @@
   "homepage": "https://github.com/LevitatingBusinessMan/welkcijfer#readme",
   "dependencies": {
     "express": "^4.16.4",
-    "magister-api": "https://github.com/LevitatingBusinessMan/magister-api.git",
     "magister.js": "^2.0.0-alpha.12",
     "pug": "^2.0.3"
   }
