@@ -2,11 +2,11 @@ const fs = require("fs")
 express = require('express'),
 path = require("path"),
 bodyParser = require("body-parser"),
+config = require(path.join(__dirname,"config")),
 app = express(),
 port = 3000;
 
 app.use(bodyParser.json());
-app.use('/public',express.static(path.join(__dirname,"public")))
 
 app.set('view engine', 'pug')
 app.set('views', path.join(__dirname, "/front/views"))
@@ -17,4 +17,4 @@ app.get('/', (req, res) => {
 
 app.post("/login", require(path.join(__dirname, "/routes/login")));
 
-app.listen(port, () => console.log(`Listening on port ${port}`))
+app.listen(port, () => console.log(`Listening on port ${config.port}`))
