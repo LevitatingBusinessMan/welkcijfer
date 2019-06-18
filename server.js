@@ -17,4 +17,4 @@ app.get('/', (req, res) => {
 
 app.post("/login", require(path.join(__dirname, "/routes/login")));
 
-app.listen(port, () => console.log(`Listening on port ${config.port}`))
+app.listen(config.port, () => console.log(`Listening on port ${config.port}`))
