@@ -7,6 +7,7 @@ app = express(),
 port = 3000;
 
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname,"front/public")))
 
 if (config.force_ssl)
     app.use((req, res, next) => {

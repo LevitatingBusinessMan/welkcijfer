@@ -1,4 +1,4 @@
 {
-    "port": "80",
-    "force_ssl": true
+    "port": "3000",
+    "force_ssl": false
 }

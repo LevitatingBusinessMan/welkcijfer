@@ -1,55 +1,70 @@
-//include ../includes/grades
+head
+    link(href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet")
 
-h1 Login met Magister:
+div#content_wrap
+    h1#title Welkcijfer.nl
 
-div#login
-    //input(value="Willem de Zwijger College Bussum")
-    br
-    br
-    input#username(placeholder="Gebruikersnaam")
-    br
-    input#password(placeholder="Wachtwoord" type="password")
-    br
+    div#login
+        h1 Login met Magister:
 
-    p Cijfer om te behouden
-        input#minimum(value="5,5")
+        input#username(placeholder="Gebruikersnaam")
+        br
+        input#password(placeholder="Wachtwoord" type="password")
+        br
 
-    button(onClick="login()") Checken
-    p#loading(style="display:none") laden...
+        p#minimum_container Cijfer om te behouden:
+            input#minimum(value="5,5")
 
-table#list(style="visibility: hidden")
-    tr
-        th Vak
-        th 1
-        th 2
-        th 3
-        th - weging
+        button#button(onClick="login()") Checken
+        p#loading(style="display:none") laden...
 
-p.
-    Er zit momenteel een bug in Magister waardoor sommige cijfers zonder weging worden weergegeven.
-    Wanneer de resultaten bijna allemaal 5.5 of 1 geven, proberen het dan nog eens.
+    div#classes_container(style="display:none")
+        h1 Cijfers
+            span#class_dropdown.arrow.up(onclick="class_dropdown()")
+        div#classes
+                
+
+    table#list(style="visibility: hidden")
+        tr
+            th Vak
+            th 1
+            th 2
+            th 3
+            th - weging
+
+    p(style="margin-top: 150px; margin-left: 100px;").
+        Deze site is een work in progress, wanneer uitkomsten niet lijken te kloppen, <br>
+        kijk dan of de cijfers die hier zichtbaar zijn overeenkomen met die op magister.
+
+span#author Ontwikkeld door: <br/> Rein Fernhout
+    a(href="https://github.com/LevitatingBusinessMan" target="_blank")
+        img(src="/Github-Logo.png" width="20px")
 
 script.
 
+    const list = document.getElementById("list");
+    const classes_list = document.getElementById("classes");
+    const classes_container = document.getElementById("classes_container");
+
+    let classes;
     function login() {
 
-        const list = document.getElementById("list");
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const minimum = document.getElementById("minimum").value;
+
+        if(!username.length)
+            return alert("Gebruikersnaam graag");
+
+        if(!password.length)
+            return alert("wachtwoord graag");
+
         //Delete existing grades
         list.innerHTML = list.rows[0].innerHTML;
         list.style = "visibility: hidden";
 
         const loading = document.getElementById("loading");
         loading.style = "display: block";
-
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const minimum = document.getElementById("minimum").value;
-        
-        if(!username.length)
-            return alert("Gebruikersnaam graag");
-
-        if(!password.length)
-            return alert("wachtwoord graag");
 
         fetch("/login",{
             method: "POST",
@@ -63,41 +78,295 @@ script.
                 //OK-results
                 if (res.ok) {
                     res.json()
-                        .then(grades => {
+                        .then(result => {
+                            classes = result;
 
-                            const list = document.getElementById("list");
+                            //Show grades
+                            classes_list.innerHTML = "";
+                            for (className in classes) {
 
-                            for (gradeName in grades) {
-                                const grade = grades[gradeName];
-                                const row = list.insertRow();
-                                const name_cell = row.insertCell(0);
-                                const weight_1 = row.insertCell(1);
-                                const weight_2 = row.insertCell(2);
-                                const weight_3 = row.insertCell(3);
-                                
-                                name_cell.innerHTML = gradeName;
-                                weight_1.innerHTML = grade[1];
-                                weight_2.innerHTML = grade[2];
-                                weight_3.innerHTML = grade[3];
+                                const div = document.createElement("DIV");
 
+                                const grades = classes[className];
 
-                                list.appendChild(row)
+                                innerHTML = 
+
+                                `
+                                <div>
+                                    <span class="class_list classname">
+                                        <p>${className.charAt(0).toUpperCase() + className.slice(1)}</p>
+                                    </span>
+                                    <span class="seperator">:</span>
+                                `
+
+                                grades.forEach(g => {
+                                    innerHTML += `
+                                        <span class="class_list grade_value ${parseFloat(g.value) >= 5.5 ? "sufficient" : "unsufficient"}">
+                                            <p>${g.value}</p>
+                                            <p class="grade_weight">${g.weight}</p>
+                                        </span>
+                                    `
+                                });
+
+                                innerHTML += "</div>";
+
+                                classes_list.appendChild(div);
+                                div.innerHTML = innerHTML;
+
                             }
 
-                            list.style = "visibility: visible";
+                            if (arrow.classList.contains('up'))
+                                classes_list.style = "display: none";
+                            classes_container.style = "display: block";
+
+                            calculate(minimum);
                         })
                 }
                 
                 //non-OK results
                 else {
-                    if (res.status !== 200) {
-                        //note: sadly fetch will always spam every non-200 requests in console
-                        alert("Oops, error")
-                    }
+                    if (res.status === 401) {
+                        alert("Er is iets misgegaan, klopt je wachtwoord? Momenteel werkt deze site alleen voor WDZ leerlingen.")
+                    } else alert("Er is iets misgegaan!")
                 }
         });
+    }
+
+    function calculate(minimum_grade) {
+        const results = {};
+
+        minimum_grade = parseFloat(minimum_grade.replace(",","."));
+
+        for (let nameOfClass in classes) {
+            let grades = classes[nameOfClass];
+            let total_points = 0;
+            let count = 0;
+
+            for (let i=0;i<grades.length;i++){
+                if (grades[i].weight) {
+                    total_points += grades[i].value * grades[i].weight;
+                    count += grades[i].weight;
+                }
+            }
+
+            let requiredGrade = [
+                ((minimum_grade * (count + 1) - total_points) / 1).toFixed(1),
+                ((minimum_grade * (count + 2) - total_points) / 2).toFixed(1),
+                ((minimum_grade * (count + 3) - total_points) / 3).toFixed(1),
+            ]
+
+            requiredGrade = requiredGrade.map( g => g < 1 ? 1 : g)
+
+            results[nameOfClass] = {
+                1: requiredGrade[0],
+                2: requiredGrade[1],
+                3: requiredGrade[2]
+            }
+        }
+
+        draw(results);
+    }
+
+    function draw(grades) {
+
+        for (gradeName in grades) {
+            const grade = grades[gradeName];
+            const row = list.insertRow();
+            const name_cell = row.insertCell(0);
+            const weight_1 = row.insertCell(1);
+            const weight_2 = row.insertCell(2);
+            const weight_3 = row.insertCell(3);
+            
+            name_cell.innerHTML = gradeName;
+            weight_1.innerHTML = grade[1];
+            weight_2.innerHTML = grade[2];
+            weight_3.innerHTML = grade[3];
+
+
+            list.appendChild(row)
+        }
+
+        list.style = "visibility: visible";
+    }
+
+    const arrow = document.getElementById("class_dropdown")
+    function class_dropdown() {
+
+
+        if (arrow.classList.contains('up') ) {
+            arrow.classList.remove("up");
+            arrow.classList.add("down");
+            classes_list.style = "display: block";
+        } else {
+            arrow.classList.remove("down");
+            arrow.classList.add("up");
+            classes_list.style = "display: none";
+        }
 
     }
 
 style.
+    * {
+        font-family: montserrat, arial, sans-serif;
+    }
 
+    #title {
+        text-align: center;
+    }
+
+    html {
+        height: 100%;
+    }
+
+    body ,html {
+        min-height: 100%;
+        position: relative;
+        margin: 0;
+    }
+
+    #content_wrap {
+        padding-bottom: 200px;
+    }
+
+    #author {
+        position: absolute;
+        bottom: 3%;
+        text-align: center;
+        width: 100%;
+    }
+
+    #author img {
+        margin-left: 3px;
+        position: relative;
+        bottom: -3px;
+    }
+
+    #login {
+        text-align: center;
+        width: 400px;
+        margin-left: 10%;
+    }
+
+    #username, #password {
+        width: 250px;
+        height: 30px;
+        font-size: 20px;
+        text-align: center;
+        border: none;
+        border-bottom: 1px solid #00ccff;
+        outline: none;
+        margin-bottom: 40px;
+    }
+
+    #username:focus, #password:focus {
+        border-width: 2px;
+    }
+
+    #minimum_container {
+        margin: 0px;
+    }
+
+    #minimum {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        border-radius: 5px;
+        text-align: center;
+        outline: none;
+        border: 1px solid grey;
+        margin-left: 10px;
+    }
+
+    #button {
+        margin-top: 30px;
+        background-color: #00ccff;
+        border: none;
+        border-radius: 10px;
+        color: white;
+        width: 150px;
+        height: 50px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    #list {
+        position: absolute;
+        right: 5%;
+        top: 5%;
+    }
+
+    td {
+        width: 70px;
+        text-align: center;
+    }
+
+    #classes_container {
+        margin-left: 50px;
+    }
+
+    .class_list {
+        font-family: arial;
+        display: inline-block;
+        box-sizing: border-box;
+        width: 50px;
+        height: 50px;
+        position: relative;
+        color: black;
+        border-radius: 10px;
+        text-align: center;
+        margin: 10px;
+        font-weight: 700;
+        border: 3px solid #00ccff;
+        user-select: no-select;
+    }
+
+    .class_list.sufficient {
+        border-color: #00cc00;
+    }
+
+    .class_list.unsufficient {
+        border-color: #ff0000;
+    }
+
+    .grade_weight {
+        font-size: 10px;
+        position: absolute;
+        left: 35px;
+        top: 30px;
+        width: 0px;
+        height: 0px;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    .seperator {
+        font-weight: 1000;
+    }
+
+    .class_list.add_grade {
+
+    }
+
+    .arrow {
+        border: solid #00ccff;
+        border-width: 0 4px 4px 0;
+        display: inline-block;
+        padding: 3px;
+        width: 15px;
+        height: 15px;
+        margin-left: 20px;
+        bottom: 4px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .arrow.down {
+        transform: rotate(45deg);
+        -webkit-transform: rotate(45deg);
+    }
+
+    .arrow.up {
+        bottom: -4px;
+        transform: rotate(-135deg);
+        -webkit-transform: rotate(-135deg);
+    }

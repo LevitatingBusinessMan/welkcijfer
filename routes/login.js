@@ -22,8 +22,9 @@ module.exports  = (req, res) => {
         grades.forEach(grade => {
             //Remove workattitude grades and averages
              if (
-                grade.type.header === "PR" ||
-                grade.type.header.startsWith("Eind") ||
+                grade.type.header !== "Toets" &&
+                grade.type.header !== "SErap.weging" ||
+                !grade.counts || 
                 isNaN(parseInt(grade.grade))
             ) return;
 
@@ -40,43 +41,17 @@ module.exports  = (req, res) => {
             });
 
         });
-
-        console.log(classes)
-
-        const results = {};
-        for (let nameOfClass in classes) {
-            let grades = classes[nameOfClass];
-            let total_points = 0;
-            let count = 0;
-
-            for (let i=0;i<grades.length;i++){
-                if (grades[i].weight) {
-                    total_points += grades[i].value * grades[i].weight;
-                    count += grades[i].weight;
-                }
-            }
-
-            let requiredGrade = [
-                ((minimum_grade * (count + 1) - total_points) / 1).toFixed(1),
-                ((minimum_grade * (count + 2) - total_points) / 2).toFixed(1),
-                ((minimum_grade * (count + 3) - total_points) / 3).toFixed(1),
-            ]
-
-            requiredGrade = requiredGrade.map( g => g < 1 ? 1 : g)
-
-            results[nameOfClass] = {
-                1: requiredGrade[0],
-                2: requiredGrade[1],
-                3: requiredGrade[2]
-            }
-        }
         //Stolen }
 
-        res.send(results)
+        res.send(classes)
 
     }).catch(err => {
-        res.status(300).send(err);
-        console.log(err);
+        if (err.message === "Invalid password")
+            res.status(401).send(err);
+        else {
+            res.status(400).send(err);
+            console.log(err);
+        }
     })
 
 };
