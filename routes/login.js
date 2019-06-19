@@ -23,6 +23,7 @@ module.exports  = (req, res) => {
             //Remove workattitude grades and averages
              if (
                 grade.type.header !== "Toets" &&
+                grade.type.header !== "Toetsweek" &&
                 grade.type.header !== "SErap.weging" ||
                 !grade.counts || 
                 isNaN(parseInt(grade.grade))
