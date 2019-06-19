@@ -47,6 +47,7 @@ script.
     const classes_container = document.getElementById("classes_container");
 
     let classes;
+    let prev_user;
     function login() {
 
         const username = document.getElementById("username").value;
@@ -58,6 +59,10 @@ script.
 
         if(!password.length)
             return alert("wachtwoord graag");
+
+        //Don't get new classes if same user
+        if (prev_user === username)
+            return calculate(minimum);
 
         //Delete existing grades
         list.innerHTML = list.rows[0].innerHTML;
@@ -120,6 +125,7 @@ script.
                             classes_container.style = "display: block";
 
                             calculate(minimum);
+                            prev_user = username;
                         })
                 }
                 
@@ -168,6 +174,9 @@ script.
     }
 
     function draw(grades) {
+
+        //Delete existing grades from table
+        list.innerHTML = list.rows[0].innerHTML;
 
         for (gradeName in grades) {
             const grade = grades[gradeName];
