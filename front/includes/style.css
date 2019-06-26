@@ -1,0 +1,180 @@
+* {
+    font-family: montserrat, arial, sans-serif;
+}
+
+#title {
+    text-align: center;
+    padding-top: 20px;
+}
+
+html {
+    height: 100%;
+}
+
+body ,html {
+    min-height: 100%;
+    position: relative;
+    margin: 0;
+}
+
+#content_wrap {
+    padding-bottom: 200px;
+}
+
+#author {
+    position: absolute;
+    bottom: 3%;
+    text-align: center;
+    width: 100%;
+}
+
+#author img {
+    margin-left: 3px;
+    position: relative;
+    bottom: -3px;
+}
+
+#login {
+    text-align: center;
+    width: 400px;
+    margin-left: 10%;
+}
+
+#username, #password {
+    width: 250px;
+    height: 30px;
+    font-size: 20px;
+    text-align: center;
+    border: none;
+    border-bottom: 1px solid #00ccff;
+    outline: none;
+    margin-bottom: 40px;
+}
+
+#username:focus, #password:focus {
+    border-width: 2px;
+}
+
+#minimum_container {
+    margin: 0px;
+}
+
+#minimum {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    border-radius: 5px;
+    text-align: center;
+    outline: none;
+    border: 1px solid grey;
+    margin-left: 10px;
+}
+
+#button {
+    outline: none;
+    margin-top: 30px;
+    background-color: #00ccff;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    width: 150px;
+    height: 50px;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#list {
+    border-collapse: collapse;
+    position: absolute;
+    right: 5%;
+    top: 5%;
+}
+
+td {
+    width: 70px;
+    text-align: center;
+}
+
+#classes_container {
+    margin-left: 50px;
+}
+
+.class_list {
+    font-family: arial;
+    display: inline-block;
+    box-sizing: border-box;
+    width: 50px;
+    height: 50px;
+    position: relative;
+    color: black;
+    border-radius: 10px;
+    text-align: center;
+    margin: 10px;
+    font-weight: 700;
+    border: 3px solid #00ccff;
+}
+
+
+.class_list.sufficient {
+    border-color: #00cc00;
+}
+
+.class_list.unsufficient {
+    border-color: #ff0000;
+}
+
+.grade_weight {
+    font-size: 10px;
+    position: absolute;
+    left: 35px;
+    top: 30px;
+    width: 0px;
+    height: 0px;
+    margin: 0px;
+    padding: 0px;
+}
+
+.seperator {
+    font-weight: 1000;
+}
+
+.arrow {
+    border: solid #00ccff;
+    border-width: 0 4px 4px 0;
+    display: inline-block;
+    padding: 3px;
+    width: 15px;
+    height: 15px;
+    margin-left: 20px;
+    bottom: 4px;
+    position: relative;
+    cursor: pointer;
+}
+
+.arrow.down {
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+}
+
+.arrow.up {
+    bottom: -4px;
+    transform: rotate(-135deg);
+    -webkit-transform: rotate(-135deg);
+}
+
+.class_list.faulty {
+    border-color: #ff9900 !important;
+}
+
+#list .faulty {
+    text-decoration: line-through;
+    color: red;
+}
+
+#list .tooltiptext {
+    position: absolute;
+    left: 73px;
+    top: -14px;
+    text-decoration: none !important;
+    color: white;
+}

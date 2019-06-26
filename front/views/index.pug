@@ -1,4 +1,5 @@
 head
+    title Welkcijfer.nl
     link(href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet")
 
 div#content_wrap
@@ -7,9 +8,9 @@ div#content_wrap
     div#login
         h1 Login met Magister:
 
-        input#username(placeholder="Gebruikersnaam")
+        input#username(placeholder="Gebruikersnaam" value=(developmentMode && credentials) ? credentials.username : "")
         br
-        input#password(placeholder="Wachtwoord" type="password")
+        input#password(placeholder="Wachtwoord" type="password" value=(developmentMode && credentials) ? credentials.password : "")
         br
 
         p#minimum_container Cijfer om te behouden:
@@ -41,12 +42,14 @@ span#author Ontwikkeld door: <br/> Rein Fernhout
         img(src="/Github-Logo.png" width="20px")
 
 script.
-
+    
     const list = document.getElementById("list");
     const classes_list = document.getElementById("classes");
     const classes_container = document.getElementById("classes_container");
 
     let classes;
+    let averages;
+    let faulty = [];
     let prev_user;
     function login() {
 
@@ -84,7 +87,28 @@ script.
                 if (res.ok) {
                     res.json()
                         .then(result => {
-                            classes = result;
+                            classes = result.classes;
+                            averages = result.averages
+
+                            //Check if grades match averages
+                            for (let nameOfClass in classes) {
+                                if (averages[nameOfClass]) {
+
+                                const grades = classes[nameOfClass];
+                                let weight_count = 0;
+                                let total_points = 0;
+
+                                grades.forEach(g => {
+                                    weight_count += g.weight;
+                                    total_points += g.value*g.weight;
+                                });
+
+                                //Magister has a stupid way of rounding end period grades
+                                if (Math.floor((total_points / weight_count) * 100)/100 != averages[nameOfClass])
+                                    faulty.push(nameOfClass);
+                                
+                                }
+                            }
 
                             //Show grades
                             classes_list.innerHTML = "";
@@ -97,23 +121,25 @@ script.
                                 innerHTML = 
 
                                 `
-                                <div>
-                                    <span class="class_list classname">
-                                        <p>${className.charAt(0).toUpperCase() + className.slice(1)}</p>
-                                    </span>
-                                    <span class="seperator">:</span>
+                                <span class="class_list classname ${faulty.includes(className) ? "faulty" : ""}">
+                                    <p>${className.charAt(0).toUpperCase() + className.slice(1)}</p>
+                                </span>
+                                <span class="seperator">:</span>
                                 `
 
                                 grades.forEach(g => {
                                     innerHTML += `
-                                        <span class="class_list grade_value ${parseFloat(g.value) >= 5.5 ? "sufficient" : "unsufficient"}">
-                                            <p>${g.value}</p>
-                                            <p class="grade_weight">${g.weight}</p>
-                                        </span>
+                                    <span class="class_list grade_value ${faulty.includes(className) ? "faulty" : ""} ${parseFloat(g.value) >= 5.5 ? "sufficient" : "unsufficient"}">
+                                        <p>${g.value}</p>
+                                        <p class="grade_weight">${g.weight}</p>
+                                    </span>
                                     `
                                 });
 
-                                innerHTML += "</div>";
+                                if (faulty.includes(className)) {
+                                    innerHTML += `<span class="tooltiptext left"> Cijferlijst incorrect </span>`;
+                                    div.classList.add("tooltip");
+                                }
 
                                 classes_list.appendChild(div);
                                 div.innerHTML = innerHTML;
@@ -155,6 +181,7 @@ script.
                 }
             }
 
+            //Should be ceiled not rounded!!! Fix in future commit
             let requiredGrade = [
                 ((minimum_grade * (count + 1) - total_points) / 1).toFixed(1),
                 ((minimum_grade * (count + 2) - total_points) / 2).toFixed(1),
@@ -191,6 +218,10 @@ script.
             weight_2.innerHTML = grade[2];
             weight_3.innerHTML = grade[3];
 
+            if (faulty.includes(gradeName)) {
+                row.classList.add("tooltip", "faulty")
+                row.innerHTML += `<span class="tooltiptext down"> Cijferlijst incorrect </span>`
+            }
 
             list.appendChild(row)
         }
@@ -214,169 +245,6 @@ script.
 
     }
 
-style.
-    * {
-        font-family: montserrat, arial, sans-serif;
-    }
-
-    #title {
-        text-align: center;
-        padding-top: 20px;
-    }
-
-    html {
-        height: 100%;
-    }
-
-    body ,html {
-        min-height: 100%;
-        position: relative;
-        margin: 0;
-    }
-
-    #content_wrap {
-        padding-bottom: 200px;
-    }
-
-    #author {
-        position: absolute;
-        bottom: 3%;
-        text-align: center;
-        width: 100%;
-    }
-
-    #author img {
-        margin-left: 3px;
-        position: relative;
-        bottom: -3px;
-    }
-
-    #login {
-        text-align: center;
-        width: 400px;
-        margin-left: 10%;
-    }
-
-    #username, #password {
-        width: 250px;
-        height: 30px;
-        font-size: 20px;
-        text-align: center;
-        border: none;
-        border-bottom: 1px solid #00ccff;
-        outline: none;
-        margin-bottom: 40px;
-    }
-
-    #username:focus, #password:focus {
-        border-width: 2px;
-    }
-
-    #minimum_container {
-        margin: 0px;
-    }
-
-    #minimum {
-        width: 50px;
-        height: 50px;
-        font-size: 20px;
-        border-radius: 5px;
-        text-align: center;
-        outline: none;
-        border: 1px solid grey;
-        margin-left: 10px;
-    }
-
-    #button {
-        margin-top: 30px;
-        background-color: #00ccff;
-        border: none;
-        border-radius: 10px;
-        color: white;
-        width: 150px;
-        height: 50px;
-        font-size: 20px;
-        cursor: pointer;
-    }
-
-    #list {
-        position: absolute;
-        right: 5%;
-        top: 5%;
-    }
-
-    td {
-        width: 70px;
-        text-align: center;
-    }
-
-    #classes_container {
-        margin-left: 50px;
-    }
-
-    .class_list {
-        font-family: arial;
-        display: inline-block;
-        box-sizing: border-box;
-        width: 50px;
-        height: 50px;
-        position: relative;
-        color: black;
-        border-radius: 10px;
-        text-align: center;
-        margin: 10px;
-        font-weight: 700;
-        border: 3px solid #00ccff;
-        user-select: no-select;
-    }
-
-    .class_list.sufficient {
-        border-color: #00cc00;
-    }
-
-    .class_list.unsufficient {
-        border-color: #ff0000;
-    }
-
-    .grade_weight {
-        font-size: 10px;
-        position: absolute;
-        left: 35px;
-        top: 30px;
-        width: 0px;
-        height: 0px;
-        margin: 0px;
-        padding: 0px;
-    }
-
-    .seperator {
-        font-weight: 1000;
-    }
-
-    .class_list.add_grade {
-
-    }
-
-    .arrow {
-        border: solid #00ccff;
-        border-width: 0 4px 4px 0;
-        display: inline-block;
-        padding: 3px;
-        width: 15px;
-        height: 15px;
-        margin-left: 20px;
-        bottom: 4px;
-        position: relative;
-        cursor: pointer;
-    }
-
-    .arrow.down {
-        transform: rotate(45deg);
-        -webkit-transform: rotate(45deg);
-    }
-
-    .arrow.up {
-        bottom: -4px;
-        transform: rotate(-135deg);
-        -webkit-transform: rotate(-135deg);
-    }
+style
+    include ../includes/style.css
+    include ../includes/tooltip.css

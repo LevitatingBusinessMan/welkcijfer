@@ -3,6 +3,7 @@ express = require("express"),
 path = require("path"),
 bodyParser = require("body-parser"),
 config = require(path.join(__dirname,"config")),
+developmentMode = process.argv.includes("-dev")
 app = express(),
 port = 3000;
 
@@ -20,7 +21,11 @@ app.set("view engine", "pug")
 app.set("views", path.join(__dirname, "/front/views"))
 
 app.get("/", (req, res) => {
-    res.render("index")
+
+    if (developmentMode)
+        res.render("index", {developmentMode, credentials: require(path.join(__dirname, "dev/credentials.json"))})
+    else res.render("index")
+    
 })
 
 app.post("/login", require(path.join(__dirname, "/routes/login")));
