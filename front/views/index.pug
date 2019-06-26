@@ -177,11 +177,15 @@ script.
                 }
             }
 
-            //Should be ceiled not rounded!!! Fix in future commit
+            if (nameOfClass == "schk") {
+                console.log(`${nameOfClass}: ${((minimum_grade * (count + 3) - total_points) / 3)}`)
+            }
+
+
             let requiredGrade = [
-                ((minimum_grade * (count + 1) - total_points) / 1).toFixed(1),
-                ((minimum_grade * (count + 2) - total_points) / 2).toFixed(1),
-                ((minimum_grade * (count + 3) - total_points) / 3).toFixed(1),
+                (Math.ceil(((minimum_grade * (count + 1) - total_points) / 1) *10 ) / 10).toFixed(1),
+                (Math.ceil(((minimum_grade * (count + 2) - total_points) / 2) *10 ) / 10).toFixed(1),
+                (Math.ceil(((minimum_grade * (count + 3) - total_points) / 3) *10 ) / 10).toFixed(1)
             ]
 
             requiredGrade = requiredGrade.map( g => g < 1 ? 1 : g)
