@@ -1,0 +1,4 @@
+585c585
+<     const authUrl = 'https://accounts.magister.net/challenge';
+---
+>     const authUrl = 'https://accounts.magister.net/challenges';

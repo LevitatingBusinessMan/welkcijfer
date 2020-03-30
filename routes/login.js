@@ -12,7 +12,8 @@ module.exports  = (req, res) => {
             "url": "https://wdz.magister.net"
         },
         username: req.body.username,
-        password: req.body.password
+        password: req.body.password,
+        authCode: "8e737d43d2fc"
     }).then (async m => {
         
         const courses = await m.courses();
